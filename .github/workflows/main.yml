@@ -1,0 +1,35 @@
+name: Build Windows EXE
+
+on:
+  push:
+    paths:
+      - 'bg_replace_gui.py'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install opencv-python numpy tkinterdnd2 pyinstaller
+
+      - name: Build EXE
+        run: |
+          pyinstaller --noconsole --onefile --add-data "%{{pythonLocation}}/Lib/site-packages/tkinterdnd2;tkinterdnd2" bg_replace_gui.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: bg_replace_gui_exe
+          path: dist/蓝底证件照批量转白底工具.exe
